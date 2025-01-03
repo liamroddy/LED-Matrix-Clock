@@ -41,6 +41,8 @@ The only measurement you really need to have down right is the internal measurme
 ![Full frame measurements](https://github.com/user-attachments/assets/1a2238c4-b12b-450b-a9a1-b11a8034c7db)
 Note that the bottom piece has a 30mm diamter hole drilled in it for passing cables inside the frame!
 
+I used pine wood and sloppily applied a dark stain after to give it a rough, aged look.
+
 ### LED Board and Pi
 
 Physically the Pi is in a slim case for shielding, which is then attached to the rear of the LED board in the most professional way possible - superglue to attach and hotglue to hold securely in place. To make the clock a little slimmer (I used 46mm depth wooden frame with the led board recessed roughly 3mm, so internal frame depth was fairly limited) I removed the LED board's HUB75 output (not needed for this project) with a pair of pliers and atatched the Pi case directly to the exposed board area. The LED board is held into the frame with screwed in corner brackets.
@@ -54,6 +56,8 @@ Here's a rear view of the clock, which is exactly as horrifically messy as any g
 
 ![interior_shot](https://github.com/user-attachments/assets/7ae81486-1323-4d8f-8c46-6d386603446a)
 
+Ignore the extra hotglue blobs near the edges, they were from a previous project i did with this board, and i really should have removed them properl
+
 ## Potential Improvements
 
 * I would recommend using a different microcomputer if building this yourself - I only used a Pi because I had it lying around but it was total overkill performance-wise (it doesn't take much to run a clock!), and this model not having built in GPIO pins meant I had a lot of soldering to do I would have rather avoided!
@@ -65,5 +69,5 @@ Here's a rear view of the clock, which is exactly as horrifically messy as any g
 
 I intend to develop the clock code further, adding:
 * Seconds to the time display
-* Weather dispaly with custom designed icons.
-* custom fonts for prettier output
+* Weather display with custom designed icons.
+* Custom fonts for prettier output
