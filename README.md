@@ -1,11 +1,15 @@
 # LED-Matrix-Clock
 This is an LED project clock I designed and built using a [64x64 Waveshare LED Matrix Board](https://www.waveshare.com/wiki/RGB-Matrix-P2-64x64) and a [Rasberry Pi Zero 2W](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/).
 
-TODO videos and pics
+![clock_photo_2](https://github.com/user-attachments/assets/1fda8e05-2f49-4832-a840-9ac678925f6e)
+Here's a video showing the clock from a few different angles: https://streamable.com/xzsfap
+
+My little smartphone camera doesn't do the LED board justice though - it's a lovely display with very bright pixels (they're at 50% brightness in the picture and video), great colour saturation, and infinite contrast ratio (much like an OLED screen a black pixel is simply turned off).
+The amber and yellow text colours in the pic and video looks lovely and warm in person.
 
 ## Notifications
 
-I designed the clock to have a notifiation system - you can configure a cron-scheduled message to appear based on whatever schedule you please. An example I have included is a Merry Christmas message that appears every hour on the hour on the 25th of December, as well as a daily 7pm and 9pm interesting fact being fetched from an online API:
+I designed the clock to have a notifiation system with a "slide-up-and-reveal" animation - you can configure a cron-scheduled message to appear based on whatever schedule you please. An example I have included is a Merry Christmas message that appears every hour on the hour on the 25th of December, as well as a daily 7pm and 9pm interesting fact being fetched from an online API:
 
 ```
 self.schedule = [
@@ -14,13 +18,14 @@ self.schedule = [
 ]
 ```
 
+Here is a video showing the notifcation display (plus a fun fact!):
+https://streamable.com/2s8azb?src=player-page-share
 
 ## The Code
 
 I wrote the clock script in Python (clock.py TODO). For details on building and running this I'd follow hzeller's wonderful guide: 
 https://github.com/hzeller/rpi-rgb-led-matrix
 You can build and run it just as you would any of the samples in the Python samples directory: https://github.com/hzeller/rpi-rgb-led-matrix/tree/master/bindings/python/samples 
-
 
 ## The Hardware
 
@@ -50,3 +55,10 @@ TODO photos of interior.
 * On the topic of power amangement - it mighrt be possible to make this battery powered with a low power microprocessor. Although the Waveshare board is rated for 5v 3A that is at peak (e.g. when showing a full field of white pixels at 100% brigthness) it consumes far less energy in less demanding scenarios. For reference I usually run the clock at 50% brightness - unless it's in direct sunlight this is plenty bright - and most of the pixels are compeltely off all the time.
 * I handwired the Pi's GPIO pins to the LED board by hand, and didn't find it too difficult - but there is HUB75 adapter HATs available for Raspberry Pi's and other microcomputers if yu can't or don't want to do this yourself.
 * Finally I ended up using two separate cables to powe the LED board and Pi seperately - a micro USB for the Pi and a 5v DC barrel jack for the board. Given that both the Pi and board take 5V DC you could definitely use a single cable - maybe a USB cable in that then splits out inside the frame.
+
+* ## Future Plans
+
+I intend to develop the clock code further, adding:
+* Seconds to the time display
+* Weather dispaly with custom designed icons.
+* custom fonts for prettier output
