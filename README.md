@@ -1,4 +1,4 @@
-ODO# LED-Matrix-Clock
+# LED-Matrix-Clock
 This is an LED project clock I designed and built using a [64x64 Waveshare LED Matrix Board](https://www.waveshare.com/wiki/RGB-Matrix-P2-64x64) and a [Rasberry Pi Zero 2W](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/).
 
 ![clock_photo_2](https://github.com/user-attachments/assets/1fda8e05-2f49-4832-a840-9ac678925f6e)
@@ -45,9 +45,14 @@ Note that the bottom piece has a 30mm diamter hole drilled in it for passing cab
 
 Physically the Pi is in a slim case for shielding, which is then attached to the rear of the LED board in the most professional way possible - superglue to attach and hotglue to hold securely in place. To make the clock a little slimmer (I used 46mm depth wooden frame with the led board recessed roughly 3mm, so internal frame depth was fairly limited) I removed the LED board's HUB75 output (not needed for this project) with a pair of pliers and atatched the Pi case directly to the exposed board area. The LED board is held into the frame with screwed in corner brackets.
 
+The ribbon cable that is included with the Waveshare board for connecting the board to a device was far too long so I doubled it over itself and cable tied it in place.
+The barrel jack to VH4 adaptor included also had far too much loose cable for this clock frame interior, but a bit of wire splicing sorted that out.
+
 Fianlly I used hooks and string to make the clock wall mountable.
 
-TODO add photos of interior.
+Here's a rear view of the clock, which is exactly as horrifically messy as any good hobbyist electronic project should be:
+
+![interior_shot](https://github.com/user-attachments/assets/7ae81486-1323-4d8f-8c46-6d386603446a)
 
 ## Potential Improvements
 
