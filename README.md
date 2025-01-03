@@ -4,7 +4,7 @@ This is an LED project clock I designed and built using a [64x64 Waveshare LED M
 ![clock_photo_2](https://github.com/user-attachments/assets/1fda8e05-2f49-4832-a840-9ac678925f6e)
 Here's a video showing the clock from a few different angles: https://streamable.com/xzsfap
 
-My little smartphone camera doesn't do the LED board justice though - it's a lovely display with very bright pixels (they're at 50% brightness in the picture and video), great colour saturation, and infinite contrast ratio (much like an OLED screen a black pixel is simply turned off).
+My little smartphone camera doesn't do the LED board justice though - it's a lovely display with no visible flicker, very bright pixels (they're at 50% brightness in the picture and video), great colour saturation, and infinite contrast ratio (much like an OLED screen a black pixel is simply turned off).
 The amber and yellow text colours in the pic and video looks lovely and warm in person.
 
 ## Notifications
