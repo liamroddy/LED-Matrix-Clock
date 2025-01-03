@@ -14,6 +14,17 @@ self.schedule = [
 ]
 ```
 
+## The Hardware
+
+Physically the Pi is in a slim case, and is attached to the rear of the LED board in the most professional way possible - superglue. To make the clock a little slimmer (I used 46mm depth wooden frame with the led board recessed roughly )
+
+
+## The Code
+
+I wrote the clock script in Python (clock.py TODO). For details on building and running this I'd follow hzeller's wonderful guide: 
+https://github.com/hzeller/rpi-rgb-led-matrix
+You can build and run it just as you would any of the samples in the Python samples directory: https://github.com/hzeller/rpi-rgb-led-matrix/tree/master/bindings/python/samples 
+
 ## The Clock Frame
 
 The frame I used for the clock is a handmade wooden one (though a 3D print would work well too!) with these dimensions:
@@ -24,7 +35,7 @@ All of these measurements can be tweaked to your desire and wood at hand (I simp
 The only measurement you really need to have down right is the internal measurment of the frame - must be 128mm x 128mm to fit the LED board!
 
 ![Full frame measurements](https://github.com/user-attachments/assets/1a2238c4-b12b-450b-a9a1-b11a8034c7db)
-Note that the bottom piece has a hole drilled in it for passing cables inside the frame!
+Note that the bottom piece has a 30mm diamter hole drilled in it for passing cables inside the frame!
 
 ## Potential Improvements
 
