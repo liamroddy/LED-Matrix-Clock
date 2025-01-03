@@ -56,7 +56,7 @@ TODO add photos of interior.
 * I handwired the Pi's GPIO pins to the LED board by hand, and didn't find it too difficult - but there is HUB75 adapter HATs available for Raspberry Pi's and other microcomputers if yu can't or don't want to do this yourself.
 * Finally I ended up using two separate cables to powe the LED board and Pi seperately - a micro USB for the Pi and a 5v DC barrel jack for the board. Given that both the Pi and board take 5V DC you could definitely use a single cable - maybe a USB cable in that then splits out inside the frame.
 
-* ## Future Plans
+## Future Plans
 
 I intend to develop the clock code further, adding:
 * Seconds to the time display
