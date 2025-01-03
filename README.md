@@ -16,11 +16,11 @@ self.schedule = [
 
 ## The Clock Frame
 
-The frame I used for the clock is a handmade wooden one (Though a 3D print would work well too!), with these dimensions:
+The frame I used for the clock is a handmade wooden one (though a 3D print would work well too!) with these dimensions:
 
 ![Single pieece measurements](https://github.com/user-attachments/assets/7c90024d-37b1-48ec-9fd2-56598d344bb5)
 
-All of these measuremnts can be tweaked to your needs and wood at hand (I simply used 12mm x 46mm wood because that's what I picked up from Woodies!)
+All of these measurements can be tweaked to your desire and wood at hand (I simply used 12mm x 46mm wood because that's what I picked up from Woodies!)
 The only measurement you really need to have down right is the internal measurment of the frame - must be 128mm x 128mm to fit the LED board!
 
 ![Full frame measurements](https://github.com/user-attachments/assets/1a2238c4-b12b-450b-a9a1-b11a8034c7db)
