@@ -1,4 +1,4 @@
-# LED-Matrix-Clock
+ODO# LED-Matrix-Clock
 This is an LED project clock I designed and built using a [64x64 Waveshare LED Matrix Board](https://www.waveshare.com/wiki/RGB-Matrix-P2-64x64) and a [Rasberry Pi Zero 2W](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/).
 
 ![clock_photo_2](https://github.com/user-attachments/assets/1fda8e05-2f49-4832-a840-9ac678925f6e)
@@ -23,7 +23,7 @@ https://streamable.com/2s8azb?src=player-page-share
 
 ## The Code
 
-I wrote the clock script in Python (clock.py TODO). For details on building and running this I'd follow hzeller's wonderful guide: 
+I wrote the clock script in Python (clock.py). For details on building and running this I'd follow hzeller's wonderful guide: 
 https://github.com/hzeller/rpi-rgb-led-matrix
 You can build and run it just as you would any of the samples in the Python samples directory: https://github.com/hzeller/rpi-rgb-led-matrix/tree/master/bindings/python/samples 
 
@@ -47,7 +47,7 @@ Physically the Pi is in a slim case for shielding, which is then attached to the
 
 Fianlly I used hooks and string to make the clock wall mountable.
 
-TODO photos of interior.
+TODO add photos of interior.
 
 ## Potential Improvements
 
