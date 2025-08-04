@@ -8,6 +8,7 @@ from enum import Enum
 from croniter import croniter
 import requests
 import json
+from focal_an_lae import get_focal_an_lae
 
 def get_fact():
     limit = 1
@@ -25,7 +26,8 @@ def get_fact():
 class Scheduler():
     def __init__(self):
         self.schedule = [
-            ["0 19,21,14 * * *", get_fact], # At 7 PM (19:00) and 9 PM (21:00) daily
+            ["0 19,21,14 * * *", get_fact], # At 7 PM (19:00), 9 PM (21:00), and 2 PM (14:00) daily
+            ["0 * * * *", get_focal_an_lae], # every hour (if above does not takes priority)
             ["0 * 25 12 *", "Nollaig shona daoibh!"]
         ]
 
