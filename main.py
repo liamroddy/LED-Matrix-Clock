@@ -4,8 +4,6 @@ from datetime import datetime
 import time
 import os
 from enum import Enum
-import requests
-import json
 from scheduler import Scheduler
 from schedule import schedule
 
@@ -21,13 +19,10 @@ def draw_with_seconds(date, offscreen_canvas, bigFont, font, vertical_offset, te
     second = date.strftime("%S")
     X_START = 5
 
-    TEMP = 7
-
     graphics.DrawText(offscreen_canvas, bigFont, X_START, 32+vertical_offset, text_colour_primary, hour)
     graphics.DrawText(offscreen_canvas, bigFont, X_START+17, 32+vertical_offset, text_colour_primary, ":")
     graphics.DrawText(offscreen_canvas, bigFont, X_START+25, 32+vertical_offset, text_colour_primary, minute)
     graphics.DrawText(offscreen_canvas, font, X_START+46, 32+vertical_offset, text_colour_primary, second)
-
 
 class Clock(MatrixPanel):
     def __init__(self, *args, **kwargs):
@@ -45,9 +40,9 @@ class Clock(MatrixPanel):
         if scriobh_as_gaeilge:
             days = ["Lua", "Mái", "Céa", "Déa", "Aoi", "Sat", "Dom"]
             months = ["Ean", "Fea", "Már", "Aib", "Bea", "Mei", "Iúi", "Lún", "MFó", "DFó", "Sam", "Nol"]
-            formatted_date = f"{days[date.weekday()]} {date.day} {months[date.month - 1]}"
+            formatted_date = f"{date.day} {days[date.weekday()]} {months[date.month - 1]}"
         else:
-            formatted_date = date.strftime("%a %d %b")
+            formatted_date = date.strftime("%d %a %b")
         return formatted_date
     
     def get_color_from_hue(self, hue):
@@ -171,11 +166,11 @@ class Clock(MatrixPanel):
                 draw_with_seconds(date, offscreen_canvas, bigFont, font, vertical_offset, text_colour_primary)
             else:
                 current_time_string = date.strftime("%H:%M")
-                length = graphics.DrawText(offscreen_canvas, bigFont, 7, 32+vertical_offset, text_colour_primary, current_time_string) # length = 50
+                graphics.DrawText(offscreen_canvas, bigFont, 7, 32+vertical_offset, text_colour_primary, current_time_string) # length = 50
 
-            length = graphics.DrawText(offscreen_canvas, font, horizontal_offset, 47+vertical_offset, text_colour_secondary, date_text) # length = 45 when date 1 > 10; 50 for 10+ 
+            graphics.DrawText(offscreen_canvas, font, horizontal_offset, 47+vertical_offset, text_colour_secondary, date_text) # length = 45 when date 1 > 10; 50 for 10+ 
 
-            time.sleep(0.00000001)
+            time.sleep(0.00000001) # 10ns
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas) 
 
 # Main function
