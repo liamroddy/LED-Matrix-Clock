@@ -1,73 +1,13 @@
 from matrix_panel import MatrixPanel
 from rgbmatrix import graphics
-from datetime import datetime, timedelta
+from datetime import datetime
 import time
 import os
 from enum import Enum
-from croniter import croniter
 import requests
 import json
-from focal_an_lae import get_focal_an_lae
-
-def get_fact():
-    limit = 1
-    api_url = 'https://api.api-ninjas.com/v1/facts'
-    api_url = 'https://api.api-ninjas.com/v1/facts'
-    api_key = os.getenv("FACTS_API_KEY")
-    if not api_key:
-        return "FACTS_API_KEY environment variable not set! Get from api-ninjas.com"
-    response = requests.get(api_url, headers={'X-Api-Key': api_key})
-    if response.status_code == requests.codes.ok:
-        return json.loads(response.text)[0].get("fact")
-    else:
-        return ("Error: " + str(response.status_code) + "; reason: " + str(response.text))
-        
-class Scheduler():
-    def __init__(self):
-        self.schedule = [
-            ["0 * 28 5 *", "Breithla sona duit, a stór <3 <3 <3"], # 28th May, every hour
-            ["0 * 25 12 *", "Nollaig shona daoibh!"], # 25th December, every hour
-            ["0/15 * * * *", get_focal_an_lae], # every 15 mins (if above does not takes priority)
-            ["16 19 * * *", "Angel numbers! <3"],
-            ["02 20 * * *", "Angel numbers! <3"],
-        ]
-
-        self.event_run_tracker = [None] * len(self.schedule)
-
-        self.rerun_limit_period = timedelta(hours=1)
-        self.grace_period = timedelta(hours=1)
-
-    def __is_time_match(self, cron_expr, current_time, last_time_event_ran):
-        cron = croniter(cron_expr, current_time)
-        prev_time = cron.get_prev(datetime)
-        rerun_limited = False
-
-        event_should_execute = (current_time - prev_time) < self.grace_period
-
-        if last_time_event_ran:
-            diff = current_time - last_time_event_ran
-            if (diff > timedelta(seconds=0) and diff < self.rerun_limit_period):
-                rerun_limited = True
-
-        return (event_should_execute) and (not rerun_limited)
-
-    def getEvent(self, current_time):
-        for i in range(len(self.schedule)):
-            event = self.schedule[i]
-            cron_expr = event[0]
-            event_content = event[1]
-
-            last_time_event_ran = self.event_run_tracker[i]
-
-            if self.__is_time_match(cron_expr, current_time, last_time_event_ran):
-                self.event_run_tracker[i] = current_time
-                event_text = ""
-                if callable(event[1]):
-                    event_text = event_content()
-                if isinstance(event_content, str):
-                    event_text = event_content
-                return event_text + "    •    " + event_text # repeat text in case start missed by reader         
-        return None
+from scheduler import Scheduler
+from schedule import schedule
 
 class EventPhase(Enum):
     START = 1
@@ -189,7 +129,7 @@ class Clock(MatrixPanel):
         event_text_length = 0
         text_scroll_speed = 0.4
 
-        scheduler = Scheduler()
+        scheduler = Scheduler(schedule)
 
         if not self.args.cycle_colours and self.args.colour_primary and self.args.colour_secondary:
             text_colour_primary = self.convert_hex_string_to_colour(self.args.colour_primary)
@@ -236,8 +176,7 @@ class Clock(MatrixPanel):
             length = graphics.DrawText(offscreen_canvas, font, horizontal_offset, 47+vertical_offset, text_colour_secondary, date_text) # length = 45 when date 1 > 10; 50 for 10+ 
 
             time.sleep(0.00000001)
-            offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas)
-
+            offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas) 
 
 # Main function
 if __name__ == "__main__":
