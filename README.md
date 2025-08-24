@@ -23,9 +23,11 @@ https://streamable.com/2s8azb?src=player-page-share
 
 ## The Code
 
-I wrote the clock script in Python (clock.py). For details on building and running this I'd follow hzeller's wonderful guide: 
+I wrote the clock script in Python. For details on building and running a whole variety of sample programs I'd follow hzeller's wonderful guide: 
 https://github.com/hzeller/rpi-rgb-led-matrix
-You can build and run it just as you would any of the samples in the Python samples directory: https://github.com/hzeller/rpi-rgb-led-matrix/tree/master/bindings/python/samples 
+
+But for this clock project you install the `rgbmatrix` library you should be able to directly execute `main.py`.
+You may also wish to do what I did for my clock and have a shell script set up to run the clock program automatically when the Pi boots up.
 
 ## The Hardware
 
@@ -50,7 +52,7 @@ Physically the Pi is in a slim case for shielding, which is then attached to the
 The ribbon cable that is included with the Waveshare board for connecting the board to a device was far too long so I doubled it over itself and cable tied it in place.
 The barrel jack to VH4 adaptor included also had far too much loose cable for this clock frame interior, but a bit of wire splicing sorted that out.
 
-Fianlly I used hooks and string to make the clock wall mountable.
+Finally I used hooks and string to make the clock wall mountable.
 
 Here's a rear view of the clock, which is exactly as horrifically messy as any good hobbyist electronic project should be:
 
@@ -68,6 +70,5 @@ Ignore the extra hotglue blobs near the edges, they were from a previous project
 ## Future Plans
 
 I intend to develop the clock code further, adding:
-* Seconds to the time display
 * Weather display with custom designed icons.
 * Custom fonts for prettier output
