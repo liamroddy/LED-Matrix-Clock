@@ -18,6 +18,8 @@ self.schedule = [
 ]
 ```
 
+You can set your own custom shedule in the `schedule.py` file.
+
 Here is a video showing the notifcation display (plus a fun fact!):
 https://streamable.com/2s8azb?src=player-page-share
 
