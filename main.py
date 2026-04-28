@@ -14,8 +14,8 @@ class EventPhase(Enum):
     OVER = 4
 
 # ── Scrolling digit animation constants ──────────────────────────────────
-SCROLL_DURATION_FRAMES = 18        # how many frames the scroll animation lasts (same for both font sizes)
-SCROLL_DIGIT_STAGGER_FRAMES = 4    # frame delay between each digit position (right-to-left cascade)
+SCROLL_DURATION_FRAMES = 22        # how many frames the scroll animation lasts (same for both font sizes)
+SCROLL_DIGIT_STAGGER_FRAMES = 16    # frame delay between each digit position (right-to-left cascade)
 SCROLL_DIGIT_GAP_PX = 2            # pixel gap between outgoing and incoming digit during scroll
 SCROLL_EASE_POWER = 2.0            # easing exponent: 1.0 = linear, 2.0 = ease-out quadratic, 3.0 = cubic
 
