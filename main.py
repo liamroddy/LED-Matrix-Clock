@@ -1,6 +1,6 @@
 from matrix_panel import MatrixPanel
 from rgbmatrix import graphics
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import os
 from enum import Enum
@@ -213,12 +213,13 @@ def draw_scrolling_time(date, offscreen_canvas, bigFont, smallFont, vertical_off
 class Clock(MatrixPanel):
     def __init__(self, *args, **kwargs):
         super(Clock, self).__init__(*args, **kwargs)
-        self.parser.add_argument("--cycle_colours", help="Whether or not to cycle colours automatically", default=False)
+        self.parser.add_argument("--cycle-colours", help="Whether or not to cycle colours automatically", default=False)
         self.parser.add_argument("--brightness", help="The brightness of the text if --cycle-colours is True", default=0.5)     
-        self.parser.add_argument("--colour_primary", help="The 1st text colour if --cycle-colours and --enable-arrow-keys are False, formatted as 6-digit hexadecimal string (e.g. '7f1200')", default='7f1200')
-        self.parser.add_argument("--colour_secondary", help="The 2nd text colour if --cycle-colours and --enable-arrow-keys are False, formatted as 6-digit hexadecimal string (e.g. '7f4800')", default='7f4800')
-        self.parser.add_argument("--scriobh_as_gaeilge", help="Set as true to print date in Irish langauge", default=True)
-        self.parser.add_argument("--use_seconds", help="Set as true to include seconds in the time display", default=True)
+        self.parser.add_argument("--colour-primary", help="The 1st text colour if --cycle-colours and --enable-arrow-keys are False, formatted as 6-digit hexadecimal string (e.g. '7f1200')", default='7f1200')
+        self.parser.add_argument("--colour-secondary", help="The 2nd text colour if --cycle-colours and --enable-arrow-keys are False, formatted as 6-digit hexadecimal string (e.g. '7f4800')", default='7f4800')
+        self.parser.add_argument("--scriobh-as-gaeilge", help="Set as true to print date in Irish language", default=True)
+        self.parser.add_argument("--use-seconds", help="Set as true to include seconds in the time display", default=True)
+        self.parser.add_argument("--time-override", help="Start the clock at a custom time for testing, e.g. '23:59:55'", default=None, type=str)
 
     def get_formatted_date(self, date, scriobh_as_gaeilge):
         if scriobh_as_gaeilge:
@@ -311,6 +312,18 @@ class Clock(MatrixPanel):
         scheduler = Scheduler(schedule)
         scroller = DigitScroller()
 
+        # Compute a fixed offset if --time_override was given
+        time_offset = timedelta()
+        if self.args.time_override:
+            parts = self.args.time_override.split(":")
+            override_time = datetime.now().replace(
+                hour=int(parts[0]),
+                minute=int(parts[1]),
+                second=int(parts[2]) if len(parts) > 2 else 0,
+                microsecond=0,
+            )
+            time_offset = override_time - datetime.now()
+
         if not self.args.cycle_colours and self.args.colour_primary and self.args.colour_secondary:
             text_colour_primary = self.convert_hex_string_to_colour(self.args.colour_primary)
             text_colour_secondary = self.convert_hex_string_to_colour(self.args.colour_secondary)
@@ -324,7 +337,7 @@ class Clock(MatrixPanel):
                 text_colour_primary = self.get_colour_from_hue(brightness, colour_primary_hue)
                 text_colour_secondary = self.get_colour_from_hue(brightness, colour_secondary_hue)            
             
-            date = datetime.now()
+            date = datetime.now() + time_offset
 
             if not currently_in_event:
                 event_text = scheduler.getEvent(date)
@@ -335,7 +348,6 @@ class Clock(MatrixPanel):
                 vertical_offset = self.get_vertical_offset(vertical_offset, vertical_animation_speed, event_phase)
                 if event_phase == EventPhase.MAIN:
                     scrolling_horizontal_offset = scrolling_horizontal_offset - text_scroll_speed
-                    event_text_length = graphics.DrawText(offscreen_canvas, font, scrolling_horizontal_offset, 55, text_colour_primary, event_text) 
                 event_phase = self.get_event_phase(vertical_offset, max_vertical_offset, event_phase, scrolling_horizontal_offset, event_text_length)
                 if event_phase == EventPhase.OVER:
                     scrolling_horizontal_offset = 64
@@ -347,9 +359,7 @@ class Clock(MatrixPanel):
             if date.day < 10:
                 horizontal_offset = 9
             
-            # ── Draw order: clock digits FIRST, then date ──
-            # This ensures the black masking boxes from the scroll animation
-            # don't paint over the date text below.
+            # ── Draw order: clock digits + masks, then date, then event text ──
             if self.args.use_seconds:
                 draw_scrolling_time(date, offscreen_canvas, bigFont, font, vertical_offset, text_colour_primary, scroller)
             else:
@@ -357,6 +367,10 @@ class Clock(MatrixPanel):
                 graphics.DrawText(offscreen_canvas, bigFont, 7, 32+vertical_offset, text_colour_primary, current_time_string)
 
             graphics.DrawText(offscreen_canvas, font, horizontal_offset, 47+vertical_offset, text_colour_secondary, date_text)
+
+            # Event scrolling text drawn last so it's not clipped by digit masks
+            if currently_in_event and event_phase == EventPhase.MAIN:
+                event_text_length = graphics.DrawText(offscreen_canvas, font, scrolling_horizontal_offset, 55, text_colour_primary, event_text)
 
             time.sleep(0.00000001) # 10ns
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas) 
