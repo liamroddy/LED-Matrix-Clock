@@ -13,16 +13,202 @@ class EventPhase(Enum):
     END = 3
     OVER = 4
 
-def draw_with_seconds(date, offscreen_canvas, bigFont, font, vertical_offset, text_colour_primary):
+# ── Scrolling digit animation constants ──────────────────────────────────
+SCROLL_DURATION_FRAMES = 18        # how many frames the scroll animation lasts (same for both font sizes)
+SCROLL_DIGIT_STAGGER_FRAMES = 4    # frame delay between each digit position (right-to-left cascade)
+SCROLL_DIGIT_GAP_PX = 2            # pixel gap between outgoing and incoming digit during scroll
+SCROLL_EASE_POWER = 2.0            # easing exponent: 1.0 = linear, 2.0 = ease-out quadratic, 3.0 = cubic
+
+def ease_out(t, power=SCROLL_EASE_POWER):
+    """Attempt ease-out: fast start, slow finish. t in [0,1] -> [0,1]"""
+    return 1.0 - (1.0 - t) ** power
+
+# Digit position definitions: (x, font_key)
+# font_key: 'big' for 10x20, 'small' for 5x7
+DIGIT_POSITIONS = [
+    # index 0: hours tens
+    {"x": 5,  "font": "big"},
+    # index 1: hours units
+    {"x": 15, "font": "big"},
+    # index 2: minutes tens
+    {"x": 30, "font": "big"},
+    # index 3: minutes units
+    {"x": 40, "font": "big"},
+    # index 4: seconds tens
+    {"x": 51, "font": "small"},
+    # index 5: seconds units
+    {"x": 56, "font": "small"},
+]
+
+# Font metrics
+FONT_HEIGHT = {"big": 20, "small": 7}
+FONT_ASCENT = {"big": 16, "small": 6}
+FONT_DESCENT = {"big": 4, "small": 1}
+FONT_WIDTH = {"big": 10, "small": 5}
+
+# Mask box overshoot: extra pixels above/below to ensure clean clipping
+MASK_OVERSHOOT = 4
+
+# The baseline y for the time display (before vertical_offset)
+TIME_BASELINE_Y = 32
+
+# Colon position
+COLON_X = 22
+
+
+class DigitScroller:
+    """Tracks per-digit animation state for the scrolling effect.
+
+    Each digit position has three pieces of state:
+      - display_char: the character currently shown (the "old" digit during animation)
+      - target_char:  the character we're animating towards (None if idle)
+      - anim_frame:   current frame of the animation (None if idle)
+      - stagger_wait: frames to wait before animation begins
+    """
+
+    def __init__(self):
+        self.display_char = [None] * 6   # what's currently rendered / the "from" digit
+        self.target_char = [None] * 6    # what we're scrolling towards
+        self.anim_frame = [None] * 6     # None = idle, 0..N = animating
+        self.stagger_wait = [0] * 6
+
+    def update(self, digits):
+        """
+        digits: list of 6 single-char strings for current HH MM SS.
+        Call once per frame.
+        """
+        # First frame: just adopt the digits, no animation
+        if self.display_char[0] is None:
+            for i in range(6):
+                self.display_char[i] = digits[i]
+            return
+
+        # Detect which digits just changed (only if not already animating)
+        changed_indices = []
+        for i in range(6):
+            if self.anim_frame[i] is None and digits[i] != self.display_char[i]:
+                changed_indices.append(i)
+
+        # Kick off animations with right-to-left stagger
+        if changed_indices:
+            max_idx = max(changed_indices)
+            for i in changed_indices:
+                self.target_char[i] = digits[i]
+                self.stagger_wait[i] = (max_idx - i) * SCROLL_DIGIT_STAGGER_FRAMES
+                self.anim_frame[i] = 0
+
+        # Advance all active animations
+        for i in range(6):
+            if self.anim_frame[i] is None:
+                continue
+
+            if self.stagger_wait[i] > 0:
+                self.stagger_wait[i] -= 1
+                continue
+
+            self.anim_frame[i] += 1
+
+            if self.anim_frame[i] >= SCROLL_DURATION_FRAMES:
+                # Animation done — adopt the new digit
+                self.display_char[i] = self.target_char[i]
+                self.target_char[i] = None
+                self.anim_frame[i] = None
+
+    def get_draw_info(self, i):
+        """
+        Returns (old_char, new_char, y_offset) for digit position i.
+        - Static digit: (None, char, 0)
+        - Waiting for stagger: (None, old_char, 0)  — holds old digit in place
+        - Animating: (old_char, new_char, pixel_offset)
+        """
+        # Not animating — just show current display char
+        if self.anim_frame[i] is None:
+            return None, self.display_char[i], 0
+
+        # Waiting for stagger to expire — hold old digit
+        if self.stagger_wait[i] > 0:
+            return None, self.display_char[i], 0
+
+        # Actively animating
+        font_key = DIGIT_POSITIONS[i]["font"]
+        height = FONT_HEIGHT[font_key]
+        total_travel = height + SCROLL_DIGIT_GAP_PX
+
+        t = self.anim_frame[i] / max(SCROLL_DURATION_FRAMES - 1, 1)
+        t = min(t, 1.0)
+        eased = ease_out(t)
+        y_offset = eased * total_travel
+
+        return self.display_char[i], self.target_char[i], y_offset
+
+
+
+def draw_scrolling_time(date, offscreen_canvas, bigFont, smallFont, vertical_offset, text_colour_primary, scroller):
+    """Draw the time with scrolling digit animation. Returns nothing; draws directly."""
     hour = date.strftime("%H")
     minute = date.strftime("%M")
     second = date.strftime("%S")
-    X_START = 5
+    digits = [hour[0], hour[1], minute[0], minute[1], second[0], second[1]]
 
-    graphics.DrawText(offscreen_canvas, bigFont, X_START, 32+vertical_offset, text_colour_primary, hour)
-    graphics.DrawText(offscreen_canvas, bigFont, X_START+17, 32+vertical_offset, text_colour_primary, ":")
-    graphics.DrawText(offscreen_canvas, bigFont, X_START+25, 32+vertical_offset, text_colour_primary, minute)
-    graphics.DrawText(offscreen_canvas, font, X_START+46, 32+vertical_offset, text_colour_primary, second)
+    scroller.update(digits)
+
+    base_y = TIME_BASELINE_Y + vertical_offset
+
+    # Draw each digit (possibly animating)
+    for i in range(6):
+        pos = DIGIT_POSITIONS[i]
+        x = pos["x"]
+        font_key = pos["font"]
+        font = bigFont if font_key == "big" else smallFont
+        height = FONT_HEIGHT[font_key]
+
+        old_char, new_char, y_off = scroller.get_draw_info(i)
+
+        if old_char is None:
+            # Static digit — just draw it
+            graphics.DrawText(offscreen_canvas, font, x, base_y, text_colour_primary, new_char)
+        else:
+            # Animating: draw old digit scrolling up, new digit entering from below
+            # old digit y: base_y - y_off (moves upward)
+            old_y = base_y - int(round(y_off))
+            # new digit y: base_y + (total_travel - y_off) = starts below, ends at base_y
+            total_travel = height + SCROLL_DIGIT_GAP_PX
+            new_y = base_y + int(round(total_travel - y_off))
+
+            graphics.DrawText(offscreen_canvas, font, x, old_y, text_colour_primary, old_char)
+            graphics.DrawText(offscreen_canvas, font, x, new_y, text_colour_primary, new_char)
+
+    # Draw the colon (static, no animation)
+    graphics.DrawText(offscreen_canvas, bigFont, COLON_X, base_y, text_colour_primary, ":")
+
+    # ── Per-digit masking boxes ──────────────────────────────────────────
+    # Each digit gets its own black rectangles above and below, sized to
+    # that digit's font metrics. This ensures the small seconds font gets
+    # clipped at its own ascent/descent, not the big font's.
+    black = graphics.Color(0, 0, 0)
+
+    for i in range(6):
+        pos = DIGIT_POSITIONS[i]
+        x = pos["x"]
+        font_key = pos["font"]
+        ascent = FONT_ASCENT[font_key]
+        descent = FONT_DESCENT[font_key]
+        width = FONT_WIDTH[font_key]
+
+        # Visible region for this digit
+        digit_top = int(base_y) - ascent
+        digit_bottom = int(base_y) + descent - 1
+
+        # Top mask: from row 0 down to just above the visible region
+        for row in range(0, digit_top):
+            graphics.DrawLine(offscreen_canvas, x, row, x + width - 1, row, black)
+
+        # Bottom mask: from just below visible region down far enough to cover scroll travel
+        height = FONT_HEIGHT[font_key]
+        mask_bottom_extent = digit_bottom + 1 + height + SCROLL_DIGIT_GAP_PX + MASK_OVERSHOOT
+        for row in range(digit_bottom + 1, mask_bottom_extent + 1):
+            graphics.DrawLine(offscreen_canvas, x, row, x + width - 1, row, black)
+
 
 class Clock(MatrixPanel):
     def __init__(self, *args, **kwargs):
@@ -35,8 +221,6 @@ class Clock(MatrixPanel):
         self.parser.add_argument("--use_seconds", help="Set as true to include seconds in the time display", default=True)
 
     def get_formatted_date(self, date, scriobh_as_gaeilge):
-        # we should be able to to natively get the date in the OS language,
-        # however I have had issues with Irish language support on Raspbian/Debian so this is my workaround
         if scriobh_as_gaeilge:
             days = ["Lua", "Mái", "Céa", "Déa", "Aoi", "Sat", "Dom"]
             months = ["Ean", "Fea", "Már", "Aib", "Bea", "Mei", "Iúi", "Lún", "MFó", "DFó", "Sam", "Nol"]
@@ -125,6 +309,7 @@ class Clock(MatrixPanel):
         text_scroll_speed = 0.4
 
         scheduler = Scheduler(schedule)
+        scroller = DigitScroller()
 
         if not self.args.cycle_colours and self.args.colour_primary and self.args.colour_secondary:
             text_colour_primary = self.convert_hex_string_to_colour(self.args.colour_primary)
@@ -162,13 +347,16 @@ class Clock(MatrixPanel):
             if date.day < 10:
                 horizontal_offset = 9
             
+            # ── Draw order: clock digits FIRST, then date ──
+            # This ensures the black masking boxes from the scroll animation
+            # don't paint over the date text below.
             if self.args.use_seconds:
-                draw_with_seconds(date, offscreen_canvas, bigFont, font, vertical_offset, text_colour_primary)
+                draw_scrolling_time(date, offscreen_canvas, bigFont, font, vertical_offset, text_colour_primary, scroller)
             else:
                 current_time_string = date.strftime("%H:%M")
-                graphics.DrawText(offscreen_canvas, bigFont, 7, 32+vertical_offset, text_colour_primary, current_time_string) # length = 50
+                graphics.DrawText(offscreen_canvas, bigFont, 7, 32+vertical_offset, text_colour_primary, current_time_string)
 
-            graphics.DrawText(offscreen_canvas, font, horizontal_offset, 47+vertical_offset, text_colour_secondary, date_text) # length = 45 when date 1 > 10; 50 for 10+ 
+            graphics.DrawText(offscreen_canvas, font, horizontal_offset, 47+vertical_offset, text_colour_secondary, date_text)
 
             time.sleep(0.00000001) # 10ns
             offscreen_canvas = self.matrix.SwapOnVSync(offscreen_canvas) 
